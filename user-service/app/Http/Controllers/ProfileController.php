@@ -2,33 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;  // Pastikan untuk mengimpor Http facade
+use GuzzleHttp\Client;
+use Carbon\Carbon;
 
 class ProfileController extends Controller
 {
     public function history()
-    {
-        // Mendapatkan data user yang sedang login
-        $user = Auth::user();
+{
+    $user = Auth::user();
+    $userId = $user->id;
+    $client = new Client();
 
-        // Ambil data order dari OrderService (misalnya di localhost pada port 8002)
-        $userId = $user->id;  // Menggunakan ID user yang sedang login
+    // Ambil orders berdasarkan user
+    $response = $client->get("http://127.0.0.1:8002/api/orders/user/{$userId}");
+    $orders = json_decode($response->getBody(), true);
 
-        // Menggunakan Http facade untuk membuat request GET ke API OrderService
-        $response = Http::get("http://localhost:8002/api/orders/user/{$userId}");
+    // Ambil semua movie dari MovieService
+    $response = $client->get("http://127.0.0.1:8001/api/movies");
+    $movies = json_decode($response->getBody(), true);
 
-        // Mengecek apakah request berhasil
-        if ($response->ok()) {
-            // Jika berhasil, ambil data order dalam format JSON
-            $orders = $response->json();
-        } else {
-            // Jika gagal, beri data dummy atau kosong
-            $orders = [];
-        }
+    // Gabungkan info movie ke dalam order
+    $ordersWithMovie = collect($orders['data'])->map(function ($order) use ($movies) {
+        $movie = collect($movies)->firstWhere('id', $order['movie_id']); // mencari movie berdasarkan movie_id
 
-        // Kirim data user dan order history ke view
-        return view('profile.history', compact('user', 'orders'));
-    }
+        return [
+            'id' => $order['id'],
+            'movie_id' => $order['movie_id'],
+            'movie_name' => $movie['title'] ?? 'Unknown', // Menampilkan nama film
+            'quantity' => $order['quantity'],
+            'total_price' => $order['total_price'],
+            'created_at' => $order['created_at'],
+            'status' => 'completed', // default status
+            // Jika ingin menambahkan detail movie seperti genre, poster, dll
+            'movie_genre' => $movie['genre'] ?? 'N/A',
+            'movie_duration' => $movie['duration'] ?? 'N/A',
+            'movie_poster' => $movie['poster'] ?? 'default.png',
+        ];
+    });
+
+    return view('user.profile', [
+        'user' => $user,
+        'orders' => $ordersWithMovie
+    ]);
+}
 }
