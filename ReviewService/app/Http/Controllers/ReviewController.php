@@ -38,11 +38,11 @@ class ReviewController extends Controller
     }
 
     // Menampilkan daftar review untuk sebuah film
-    public function index($movie_id)
+
+    public function index()
     {
-        $movie = Movie::findOrFail($movie_id);
-        $reviews = $movie->reviews; // Mengambil semua review yang terkait dengan film ini
-        return view('reviews.index', compact('reviews', 'movie'));
+        $reviews = Review::all(); // ambil semua data review dari database
+        return view('welcome', compact('reviews')); // ⬅️ ini penting!
     }
 
     // Menampilkan form untuk mengedit review

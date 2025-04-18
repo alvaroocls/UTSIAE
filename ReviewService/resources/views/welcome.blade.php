@@ -7,101 +7,151 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <style>
+        body {
+            background-color: #f8f9fa;
+        }
         .film-card {
-            transition: transform 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
         .film-card:hover {
-            transform: scale(1.05);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .badge-rating {
+            background-color: #ffc107;
+            font-size: 0.9rem;
+        }
+        .film-img {
+            height: 200px;
+            object-fit: cover;
+        }
+        .review-snippet {
+            font-style: italic;
+            color: #6c757d;
         }
     </style>
 </head>
 <body class="p-4">
     <div class="container">
+
         @if(session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
 
-        <h1 class="text-center mb-4">Review Film</h1>
+        <h1 class="text-center mb-4">
+            🎬 <strong>Review Film</strong>
+        </h1>
 
-        <h2>Daftar Film yang Sudah Di Review</h2>
-        <div class="row mb-4">
-            <!-- Card untuk Film A -->
-            <div class="col-md-4">
-                <div class="card film-card">
-                    <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Film A">
-                    <div class="card-body">
-                        <h5 class="card-title">Film A</h5>
-                        <p class="card-text">
-                            Rating: <strong>4.67</strong> / 10.000 orang
-                        </p>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal" data-movie="Film A">Berikan Review</button>
-                    </div>
-                </div>
-            </div>
-            <!-- Card untuk Film B -->
-            <div class="col-md-4">
-                <div class="card film-card">
-                    <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Film B">
-                    <div class="card-body">
-                        <h5 class="card-title">Film B</h5>
-                        <p class="card-text">
-                            Rating: <strong>3.95</strong> / 8.500 orang
-                        </p>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal" data-movie="Film B">Berikan Review</button>
-                    </div>
-                </div>
-            </div>
-            <!-- Card untuk Film C -->
-            <div class="col-md-4">
-                <div class="card film-card">
-                    <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Film C">
-                    <div class="card-body">
-                        <h5 class="card-title">Film C</h5>
-                        <p class="card-text">
-                            Rating: <strong>5.00</strong> / 15.000 orang
-                        </p>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal" data-movie="Film C">Berikan Review</button>
-                    </div>
-                </div>
-            </div>
+        <!-- Tombol Tambah Review Film Baru -->
+        <div class="mb-4 text-end">
+            <button class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#newReviewModal">
+                + Tambah Review Film Baru
+            </button>
         </div>
 
-        <!-- Modal untuk review -->
+        <div class="row mb-4">
+            @forelse ($reviews as $review)
+                <div class="col-md-6 col-lg-4">
+                    <div class="card film-card mb-4">
+                        <img src="https://picsum.photos/seed/{{ $review->id }}/600/400" class="card-img-top film-img" alt="{{ $review->movie_title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ $review->movie_title }}</h5>
+                            <p class="card-text">
+                                <span class="badge badge-rating">
+                                    ⭐ {{ $review->rating }} / 5
+                                </span>
+                                <small class="text-muted ms-2">{{ number_format($review->voters ?? 0) }} penonton</small>
+                            </p>
+
+                            <!-- ✅ Tampilkan review -->
+                            <p class="review-snippet">“{{ $review->review }}”</p>
+
+                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#reviewModal" data-movie="{{ $review->movie_title }}">Berikan Review</button>
+
+                            <div class="mt-3 d-flex gap-2">
+                                <a href="{{ route('reviews.edit', $review->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                <form action="{{ route('reviews.destroy', $review->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus review ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <p class="text-muted text-center">Belum ada review film 😢</p>
+            @endforelse
+        </div>
+
+        <!-- Modal: Berikan Review -->
         <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
+                <div class="modal-content shadow">
                     <div class="modal-header">
                         <h5 class="modal-title" id="reviewModalLabel">Berikan Review untuk <span id="modal-movie-title">Film</span></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                     </div>
                     <div class="modal-body">
-                    <form action="{{ route('reviews.store') }}" method="POST">
+                        <form action="{{ route('reviews.store') }}" method="POST">
                             @csrf
                             <input type="hidden" name="movie_title" id="movie-title-input">
                             <div class="mb-3">
-                                <label for="review" class="form-label">Review</label>
-                                <textarea name="review" class="form-control" required></textarea>
+                                <label class="form-label">Review</label>
+                                <textarea name="review" class="form-control" rows="3" required></textarea>
                             </div>
-
                             <div class="mb-3">
-                                <label for="rating" class="form-label">Rating (1-5)</label>
+                                <label class="form-label">Rating (1-5)</label>
                                 <input type="number" name="rating" class="form-control" min="1" max="5" required>
                             </div>
-
-                            <button type="submit" class="btn btn-success">Kirim Review</button>
+                            <button type="submit" class="btn btn-success w-100">Kirim Review</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
 
-        <a href="/home" class="btn btn-secondary mt-3">Kembali ke Beranda</a>
+        <!-- Modal: Tambah Review Baru -->
+        <div class="modal fade" id="newReviewModal" tabindex="-1" aria-labelledby="newReviewModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content shadow">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newReviewModalLabel">Tambah Review Film Baru</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ route('reviews.store') }}" method="POST">
+                            @csrf
+                            <div class="mb-3">
+                                <label class="form-label">Judul Film</label>
+                                <input type="text" name="movie_title" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Review</label>
+                                <textarea name="review" class="form-control" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Rating (1-5)</label>
+                                <input type="number" name="rating" class="form-control" min="1" max="5" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Simpan Review</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <a href="/home" class="btn btn-secondary mt-4 d-block mx-auto" style="max-width: 200px;">⬅ Kembali ke Beranda</a>
     </div>
 
     <script>
-        // Mengubah title dan hidden input movie_title berdasarkan film yang dipilih
+        // Script isi otomatis modal "Berikan Review"
         var reviewButtons = document.querySelectorAll('[data-bs-toggle="modal"]');
         reviewButtons.forEach(function(button) {
             button.addEventListener('click', function() {
