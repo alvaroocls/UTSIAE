@@ -23,6 +23,10 @@ class OrderController extends Controller
             ['id' => 3, 'title' => 'Movie 3', 'price' => 200],
         ];
 
+        $client = new \GuzzleHttp\Client();
+        $response = $client->get('http://127.0.0.1:8080/api/movies');
+        $movies = json_decode($response->getBody(), true);
+
         return view('orders.create', compact('users', 'movies'));
     }
 

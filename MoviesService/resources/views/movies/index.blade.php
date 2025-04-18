@@ -26,12 +26,7 @@
                 <strong>Genre:</strong> {{ $movie->genre }}<br>
                 <strong>Durasi:</strong> {{ $movie->duration }} menit
               </p>
-              <a href="{{ route('movies.show', $movie->id) }}" class="btn btn-sm btn-warning">Edit</a>
-              <form action="{{ route('movies.destroy', $movie->id) }}" method="POST" class="d-inline">
-                @csrf
-                @method('DELETE')
-                <button onclick="return confirm('Yakin ingin menghapus?')" class="btn btn-sm btn-danger">Hapus</button>
-              </form>
+              <a href="{{ route('movies.show', $movie->id) }}" class="btn btn-sm btn-info">Lihat Detail</a>
             </div>
           </div>
         </div>

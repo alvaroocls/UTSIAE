@@ -20,6 +20,15 @@ class MovieController extends Controller
         if (!$movie) {
             return response()->json(['message' => 'Movie not found'], 404);
         }
+        return view('movies.show', compact('movie'));
+    }
+
+    public function edit($id){
+        // Logic to retrieve and return a single movie by ID for editing
+        $movie = Movie::find($id);
+        if (!$movie) {
+            return response()->json(['message' => 'Movie not found'], 404);
+        }
         return view('movies.edit', compact('movie'));
     }
 

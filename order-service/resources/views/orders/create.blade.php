@@ -26,7 +26,7 @@
             <select class="form-control" name="movie_id" required>
                 <option value="">-- Pilih Film --</option>
                 @foreach($movies as $movie)
-                    <option value="{{ $movie['id'] }}">{{ $movie['title'] }} (Rp{{ number_format($movie['price'], 0, ',', '.') }})</option>
+                    <option value="{{ $movie['id'] }}">{{ $movie['title'] }}</option>
                 @endforeach
             </select>
         </div>
