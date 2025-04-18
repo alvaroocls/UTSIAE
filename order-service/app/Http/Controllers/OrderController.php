@@ -24,7 +24,7 @@ class OrderController extends Controller
         ];
 
         $client = new \GuzzleHttp\Client();
-        $response = $client->get('http://localhost:8000/api/movies');
+        $response = $client->get('http://127.0.0.1:8080/api/movies');
         $movies = json_decode($response->getBody(), true);
 
         return view('orders.create', compact('users', 'movies'));
