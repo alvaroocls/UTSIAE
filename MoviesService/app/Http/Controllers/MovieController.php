@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Movie;
+use Illuminate\Support\Facades\Http;
 
 use Illuminate\Http\Request;
 
@@ -15,13 +16,39 @@ class MovieController extends Controller
 
     public function show($id)
     {
-        // Logic to retrieve and return a single movie by ID
+        // Ambil movie dari DB lokal
         $movie = Movie::find($id);
         if (!$movie) {
             return response()->json(['message' => 'Movie not found'], 404);
         }
-        return view('movies.show', compact('movie'));
+
+        // Ambil data orders dari API eksternal
+        $orders = [];
+        try {
+            $response = Http::get("http://127.0.0.1:8002/api/orders/movie/{$id}");
+            if ($response->successful()) {
+                $orders = $response['data']; // ambil data dari response
+            }
+        } catch (\Exception $e) {
+            // Optional: log error atau isi $orders dengan pesan error
+            $orders = [];
+        }
+
+        // Ambil data reviews dari API eksternal
+        $reviews = [];
+        try {
+            $response = Http::get("http://127.0.0.1:8004/api/reviews/{$id}");
+            if ($response->successful()) {
+                $reviews = $response->json(); // langsung ambil array JSON
+            }
+        } catch (\Exception $e) {
+            $reviews = [];
+        }
+
+        // Kirim semuanya ke view
+        return view('movies.show', compact('movie', 'orders', 'reviews'));
     }
+
 
     public function edit($id){
         // Logic to retrieve and return a single movie by ID for editing

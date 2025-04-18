@@ -72,7 +72,6 @@
                             <!-- ✅ Tampilkan review -->
                             <p class="review-snippet">“{{ $review->review }}”</p>
 
-                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#reviewModal" data-movie="{{ $review->movie_title }}">Berikan Review</button>
 
                             <div class="mt-3 d-flex gap-2">
                                 <a href="{{ route('reviews.edit', $review->id) }}" class="btn btn-warning btn-sm">Edit</a>
@@ -128,10 +127,29 @@
                     <div class="modal-body">
                         <form action="{{ route('reviews.store') }}" method="POST">
                             @csrf
+                        
+                            <!-- Dropdown Movie -->
                             <div class="mb-3">
-                                <label class="form-label">Judul Film</label>
-                                <input type="text" name="movie_title" class="form-control" required>
+                                <label class="form-label">Pilih Film</label>
+                                <select name="movie_id" class="form-select" required>
+                                    <option value="">-- Pilih Film --</option>
+                                    @foreach ($movies as $movie)
+                                        <option value="{{ $movie['id'] }}">{{ $movie['title'] }}</option>
+                                    @endforeach
+                                </select>
                             </div>
+                        
+                            <!-- Dropdown User -->
+                            <div class="mb-3">
+                                <label class="form-label">Pilih User</label>
+                                <select name="user_id" class="form-select" required>
+                                    <option value="">-- Pilih User --</option>
+                                    @foreach ($users as $user)
+                                        <option value="{{ $user['id'] }}">{{ $user['name'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        
                             <div class="mb-3">
                                 <label class="form-label">Review</label>
                                 <textarea name="review" class="form-control" rows="3" required></textarea>
@@ -142,6 +160,7 @@
                             </div>
                             <button type="submit" class="btn btn-primary w-100">Simpan Review</button>
                         </form>
+                        
                     </div>
                 </div>
             </div>

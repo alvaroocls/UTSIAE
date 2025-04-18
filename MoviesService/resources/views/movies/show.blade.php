@@ -9,7 +9,7 @@
   <div class="container mt-5">
     <a href="{{ route('movies.index') }}" class="btn btn-secondary mb-4">← Kembali ke Daftar Movie</a>
 
-    <div class="card">
+    <div class="card mb-4">
       @if ($movie->poster)
         <img src="{{ asset('storage/' . $movie->poster) }}" class="card-img-top" style="height: 400px; object-fit: cover;" alt="{{ $movie->title }}">
       @endif
@@ -28,6 +28,53 @@
           <button onclick="return confirm('Yakin ingin menghapus?')" class="btn btn-danger">Hapus</button>
         </form>
       </div>
+    </div>
+
+    {{-- Bagian Orders --}}
+    <div class="mb-4">
+      <h4>Data Orders</h4>
+      @if (count($orders) > 0)
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Jumlah Tiket</th>
+              <th>Total Harga</th>
+              <th>Tanggal Order</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach ($orders as $order)
+              <tr>
+                <td>{{ $order['user_id'] }}</td>
+                <td>{{ $order['quantity'] }}</td>
+                <td>Rp{{ number_format($order['total_price']) }}</td>
+                <td>{{ \Carbon\Carbon::parse($order['created_at'])->format('d M Y H:i') }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      @else
+        <p class="text-muted">Belum ada order untuk film ini.</p>
+      @endif
+    </div>
+
+    {{-- Bagian Reviews --}}
+    <div class="mb-4">
+      <h4>Ulasan / Reviews</h4>
+      @if (count($reviews) > 0)
+        <ul class="list-group">
+          @foreach ($reviews as $review)
+            <li class="list-group-item">
+              <strong>Rating:</strong> {{ $review['rating'] }}<br>
+              <strong>Review:</strong> {{ $review['review'] }}<br>
+              <small class="text-muted">User ID: {{ $review['user_id'] }} | {{ \Carbon\Carbon::parse($review['created_at'])->format('d M Y H:i') }}</small>
+            </li>
+          @endforeach
+        </ul>
+      @else
+        <p class="text-muted">Belum ada ulasan untuk film ini.</p>
+      @endif
     </div>
   </div>
 

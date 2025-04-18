@@ -1,58 +1,57 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Review;
-use App\Models\Movie;
-use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class ReviewController extends Controller
 {
-    // Menampilkan form untuk membuat review baru
-    public function create($movie_id)
+    // Menampilkan halaman utama dengan review + data movie & user dari API
+    public function index()
     {
-        $movie = Movie::find($movie_id);
-        return view('reviews.create', compact('movie'));
+        $reviews = Review::all();
+
+        // Ambil data movies dan users dari API
+        $movies = Http::get('http://127.0.0.1:8001/api/movies')->json();
+        $users = Http::get('http://127.0.0.1:8003/api/users')->json();
+
+        return view('welcome', compact('reviews', 'movies', 'users'));
     }
 
-    // Menyimpan review baru ke database
+    // Menyimpan review baru
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'movie_title' => 'required|string',
+            'movie_id' => 'required|integer',
+            'user_id' => 'required|integer',
             'review' => 'required|string',
             'rating' => 'required|integer|min:1|max:5',
         ]);
 
+        // Dapatkan judul film dari API berdasarkan movie_id
+        $movies = collect(Http::get('http://127.0.0.1:8001/api/movies')->json());
+        $movie = $movies->firstWhere('id', $validated['movie_id']);
+        $movieTitle = $movie['title'] ?? 'Unknown';
+
         // Simpan ke database
         Review::create([
-            'movie_title' => $validated['movie_title'],
+            'movie_title' => $movieTitle,
             'review' => $validated['review'],
             'rating' => $validated['rating'],
-            'user_id' => 1,       // sementara default
-            'movie_id' => 1,      // sementara default
+            'user_id' => $validated['user_id'],
+            'movie_id' => $validated['movie_id'],
         ]);
 
         return redirect('/')->with('success', 'Review berhasil ditambahkan!');
     }
 
-    // Menampilkan daftar review untuk sebuah film
-
-    public function index()
-    {
-        $reviews = Review::all(); // ambil semua data review dari database
-        return view('welcome', compact('reviews')); // ⬅️ ini penting!
-    }
-
-    // Menampilkan form untuk mengedit review
     public function edit($id)
     {
         $review = Review::findOrFail($id);
         return view('reviews.edit', compact('review'));
     }
 
-    // Mengupdate review yang ada
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -66,17 +65,21 @@ class ReviewController extends Controller
             'rating' => $request->rating,
         ]);
 
-        return redirect()->route('reviews.index', ['movie_id' => $review->movie_id])
-                         ->with('success', 'Review berhasil diperbarui!');
+        return redirect('/')->with('success', 'Review berhasil diperbarui!');
     }
 
-    // Menghapus review
     public function destroy($id)
     {
         $review = Review::findOrFail($id);
         $review->delete();
 
-        return redirect()->route('reviews.index', ['movie_id' => $review->movie_id])
-                         ->with('success', 'Review berhasil dihapus!');
+        return redirect('/')->with('success', 'Review berhasil dihapus!');
+    }
+
+    public function reviewsByMovie($movie_id)
+    {
+        $reviews = Review::where('movie_id', $movie_id)->get();
+        return response()->json($reviews);
     }
 }
+
