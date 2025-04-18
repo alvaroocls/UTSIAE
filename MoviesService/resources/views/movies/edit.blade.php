@@ -47,7 +47,7 @@
         <input type="file" class="form-control" id="poster" name="poster">
       </div>
 
-    
+      
       <button type="submit" class="btn btn-success">Update</button>
 
       <a href="{{ route('movies.index') }}" class="btn btn-secondary">Batal</a>
