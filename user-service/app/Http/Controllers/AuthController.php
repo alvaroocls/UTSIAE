@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User; // Untuk menggunakan model User
-use Illuminate\Support\Facades\Auth; // Untuk menggunakan fitur Auth
-use Illuminate\Support\Facades\Hash; // Untuk hashing password
+use App\Models\User; 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 
 class AuthController extends Controller
@@ -31,7 +31,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        Auth::login($user); // login otomatis setelah register
+        Auth::login($user); 
 
         return redirect('/profile');
     }

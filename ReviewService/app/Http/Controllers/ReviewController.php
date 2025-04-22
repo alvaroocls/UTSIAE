@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Http;
 
 class ReviewController extends Controller
 {
-    // Menampilkan halaman utama dengan review + data movie & user dari API
     public function index()
     {
         $reviews = Review::all();
@@ -19,7 +18,6 @@ class ReviewController extends Controller
         return view('welcome', compact('reviews', 'movies', 'users'));
     }
 
-    // Menyimpan review baru
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -29,12 +27,10 @@ class ReviewController extends Controller
             'rating' => 'required|integer|min:1|max:5',
         ]);
 
-        // Dapatkan judul film dari API berdasarkan movie_id
         $movies = collect(Http::get('http://127.0.0.1:8001/api/movies')->json());
         $movie = $movies->firstWhere('id', $validated['movie_id']);
         $movieTitle = $movie['title'] ?? 'Unknown';
 
-        // Simpan ke database
         Review::create([
             'movie_title' => $movieTitle,
             'review' => $validated['review'],

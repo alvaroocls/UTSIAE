@@ -12,9 +12,6 @@
         <p><strong>Total Bayar:</strong> Rp{{ number_format($order->total_price, 0, ',', '.') }}</p>
         <p><strong>Waktu Pemesanan:</strong> {{ $order->created_at->format('d M Y, H:i') }}</p>
 
-        <!-- Tombol Kembali -->
-        <a href="{{ route('orders.create') }}" class="btn btn-secondary mt-3">Kembali ke Pemesanan Baru</a>
-
         <!-- Tombol Tambah Pemesanan Baru -->
         <a href="{{ route('orders.create') }}" class="btn btn-primary mt-3">Tambah Pemesanan Baru</a>
     </div>
