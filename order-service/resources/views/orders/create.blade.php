@@ -32,6 +32,16 @@
         </div>
 
         <div class="mb-3">
+            <label for="theater_id">Pilih Theater:</label>
+            <select class="form-control" name="theater_id" required>
+                <option value="">-- Pilih Theater --</option>
+                @foreach($theaters as $theater)
+                    <option value="{{ $theater['id'] }}">{{ $theater['name'] }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="mb-3">
             <label for="quantity">Jumlah Tiket:</label>
             <input type="number" class="form-control" name="quantity" min="1" required>
         </div>

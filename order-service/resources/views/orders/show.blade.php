@@ -7,6 +7,7 @@
     <div class="card p-4">
         <p><strong>Nama Pemesan:</strong> {{ $user['name'] }}</p>
         <p><strong>Judul Film:</strong> {{ $movie['title'] }}</p>
+        <p><strong>Theater:</strong> {{ $theater['name'] }}</p>
         <p><strong>Jumlah Tiket:</strong> {{ $order->quantity }}</p>
         <p><strong>Harga per Tiket:</strong> Rp{{ number_format(40000, 0, ',', '.') }}</p>
         <p><strong>Total Bayar:</strong> Rp{{ number_format($order->total_price, 0, ',', '.') }}</p>

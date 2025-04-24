@@ -9,25 +9,23 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('movie_id');
-            $table->unsignedBigInteger('theater_id');
-            $table->integer('quantity');
-            $table->decimal('total_price', 10, 2);
+            $table->foreignId('theater_id')->constrained()->onDelete('cascade');
+            $table->dateTime('start_time');
+            $table->dateTime('end_time');
             $table->timestamps();
         });
-        
     }
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('schedules');
     }
 };

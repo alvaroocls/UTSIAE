@@ -126,4 +126,5 @@ class MovieController extends Controller
 
         return response()->json($movie);
     }
+
 }

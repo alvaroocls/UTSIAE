@@ -18,7 +18,10 @@ class OrderController extends Controller
         $response = $client->get('http://127.0.0.1:8001/api/movies');
         $movies = json_decode($response->getBody(), true);
 
-        return view('orders.create', compact('users', 'movies'));
+        $response = $client->get('http://127.0.0.1:8005/api/theaters');
+        $theaters = json_decode($response->getBody(), true);
+
+        return view('orders.create', compact('users', 'movies','theaters'));
     }
 
     public function store(Request $request)
@@ -26,6 +29,7 @@ class OrderController extends Controller
         $order = Order::create([
             'user_id'     => $request->user_id,
             'movie_id'    => $request->movie_id,
+            'theater_id'    => $request->theater_id,
             'quantity'    => $request->quantity,
             'total_price' => 40000 * $request->quantity,
         ]);
@@ -48,7 +52,11 @@ class OrderController extends Controller
         $movies = json_decode($response->getBody(), true);
         $movie = collect($movies)->firstWhere('id', $order->movie_id);
 
-        return view('orders.show', compact('order', 'user', 'movie'));
+        $response = $client->get('http://127.0.0.1:8005/api/theaters');
+        $theaters = json_decode($response->getBody(), true);
+        $theater = collect($theaters)->firstWhere('id', $order->theater_id);
+
+        return view('orders.show', compact('order', 'user', 'movie','theater'));
     }
 
     public function getByUser($userId)
@@ -64,6 +72,23 @@ class OrderController extends Controller
     public function getByMovie($movieId)
     {
         $orders = Order::where('movie_id', $movieId)->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $orders,
+        ]);
+    }
+
+    public function getByTheater($theaterId)
+    {
+        $orders = Order::where('theater_id', $theaterId)->get();
+
+        if ($orders->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No orders found for this theater.',
+            ], 404);
+        }
 
         return response()->json([
             'status' => 'success',
